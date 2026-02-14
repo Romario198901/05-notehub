@@ -5,7 +5,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import css from './App.module.css';
-import NoteList from '../NoteList/Notelist';
+import NoteList from '../NoteList/NoteList';
 import { createNote, fetchNotes } from '../../services/noteService';
 import { useEffect, useState } from 'react';
 import SearchBox from '../SearchBox/SearchBox';
