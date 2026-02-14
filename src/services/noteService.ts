@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { Note } from '../types/note';
+import type { Note, NoteTag } from '../types/note';
 interface AxiosNotesResponse {
   notes: Note[];
   totalPages: number;
@@ -8,7 +8,7 @@ interface AxiosNotesResponse {
 interface createNote {
   title: string;
   content: string;
-  tag: 'Todo' | 'Work' | 'Personal' | 'Idea';
+  tag: NoteTag;
 }
 const ITEMS_PER_PAGE = 12;
 const myKey = import.meta.env.VITE_NOTEHUB_TOKEN;
@@ -19,25 +19,26 @@ const api = axios.create({
     Authorization: `Bearer ${myKey}`,
   },
 });
-export async function fetchNotes(
+export const fetchNotes = async (
   query: string,
   page: number
-): Promise<AxiosNotesResponse> {
+): Promise<AxiosNotesResponse> => {
   const response = await api.get<AxiosNotesResponse>('/notes', {
     params: {
-      search: query,
       page,
       perPage: ITEMS_PER_PAGE,
+      ...(query.trim() ? { search: query } : {}),
     },
   });
   return response.data;
-}
-export async function createNote(
+};
+export const createNote = async (
   note: createNote
-): Promise<AxiosNotesResponse> {
+): Promise<AxiosNotesResponse> => {
   const response = await api.post<AxiosNotesResponse>('/notes', note);
   return response.data;
-}
-export async function deleteNote(id: string): Promise<void> {
-  await api.delete<AxiosNotesResponse>(`/notes/${id}`);
-}
+};
+export const deleteNote = async (id: string): Promise<AxiosNotesResponse> => {
+  const response = await api.delete<AxiosNotesResponse>(`/notes/${id}`);
+  return response.data;
+};
