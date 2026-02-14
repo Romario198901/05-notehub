@@ -1,12 +1,7 @@
-import {
-  keepPreviousData,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import css from './App.module.css';
 import NoteList from '../NoteList/NoteList';
-import { createNote, fetchNotes } from '../../services/noteService';
+import { fetchNotes } from '../../services/noteService';
 import { useEffect, useState } from 'react';
 import SearchBox from '../SearchBox/SearchBox';
 import { useDebouncedCallback } from 'use-debounce';
@@ -22,7 +17,6 @@ function App() {
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
   const [modalIsOpen, setModalIsOpen] = useState(false);
-  const queryClient = useQueryClient();
   const { data, isLoading, isError, isFetching } = useQuery({
     queryKey: ['notes', query, page],
     queryFn: () => fetchNotes(query, page),
@@ -54,17 +48,7 @@ function App() {
   const handleModalClose = () => {
     setModalIsOpen(false);
   };
-  const createMutation = useMutation({
-    mutationFn: createNote,
-    onSuccess: async () => {
-      toast.success('Note created');
-      await queryClient.invalidateQueries({ queryKey: ['notes'] });
-      handleModalClose();
-    },
-    onError: () => {
-      toast.error('Failed to create note');
-    },
-  });
+
   return (
     <div className={css.app}>
       <header className={css.toolbar}>
@@ -90,13 +74,7 @@ function App() {
 
       {modalIsOpen && (
         <Modal onClose={handleModalClose}>
-          {
-            <NoteForm
-              onCancel={handleModalClose}
-              onSubmit={values => createMutation.mutateAsync(values)}
-              isSubmitting={createMutation.isPending}
-            ></NoteForm>
-          }
+          {<NoteForm onCancel={handleModalClose}></NoteForm>}
         </Modal>
       )}
     </div>
