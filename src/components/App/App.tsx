@@ -7,12 +7,13 @@ import SearchBox from '../SearchBox/SearchBox';
 import { useDebouncedCallback } from 'use-debounce';
 import toast from 'react-hot-toast';
 import Pagination from '../Pagination/Pagination';
+import Modal from '../Modal/Modal';
 
 function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
-
+  const [modalIsOpen, setModalIsOpen] = useState(false);
   const { data, isLoading, isError, isFetching } = useQuery({
     queryKey: ['notes', query, page],
     queryFn: () => fetchNotes(query, page),
@@ -38,22 +39,43 @@ function App() {
       toast.error('There aren`t notes on your search... Please try again');
     }
   }, [isFetching, query, data.notes.length]);
+  const handleModalOpen = () =>  {
+    setModalIsOpen(true);
+  }
+  const handleModalClose = () =>  {
+    setModalIsOpen(false);
+  }
   return (
     <div className={css.app}>
-      <header className={css.toolbar}>
-        <SearchBox value={searchTerm} onChange={handleSearch}></SearchBox>
-        {data.totalPages > 1 && <Pagination page={page} totalPages={data.totalPages} onPageChange={setPage} />}
-        <button className={css.button} onClick={() => {}}>
-          Create note +{' '}
-        </button>
-      </header>
-      {isLoading && <>Loading.... Please wait</>}
-      {isError && <>Something went wrong.</>}
-      {data?.notes && data?.notes.length > 0 && (
-        <NoteList notes={data.notes}></NoteList>
-      )}
-    </div>
-  );
+  <header className={css.toolbar}>
+    <SearchBox value={searchTerm} onChange={handleSearch} />
+
+    {data.totalPages > 1 && (
+      <Pagination
+        page={page}
+        totalPages={data.totalPages}
+        onPageChange={setPage}
+      />
+    )}
+
+    <button className={css.button} onClick={handleModalOpen}>
+      Create note +
+    </button>
+  </header>
+
+  {isLoading && <>Loading… Please wait.</>}
+  {isError && <>Something went wrong.</>}
+
+  {data?.notes?.length > 0 && <NoteList notes={data.notes} />}
+
+  {modalIsOpen && (
+    <Modal onClose={handleModalClose} children={null}>
+    
+    </Modal>
+  )}
+</div>
+
+    );
 }
 
 export default App;
